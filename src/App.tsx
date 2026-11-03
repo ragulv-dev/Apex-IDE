@@ -11,13 +11,99 @@ import { SettingsModal } from './components/Settings/SettingsModal'
 import { CommandPalette } from './components/CommandPalette'
 import { WelcomeScreen } from './components/WelcomeScreen'
 import { SplashScreen } from './components/SplashScreen'
+import { ZoomBadge } from './components/ui/ZoomBadge'
+import { initZoom, zoomIn, zoomOut, resetZoom } from './utils/zoom'
 import { useEditorStore } from './stores'
 import { Resizer } from './components/ui/Resizer'
 
 export default function App() {
-  const { showSidebar, showChat, showTerminal, showSettings, sidebarWidth, chatPanelWidth, terminalHeight } = useUIStore()
+  const { showSidebar, showChat, showTerminal, showSettings, sidebarWidth, chatPanelWidth, terminalHeight, toggleSidebar, toggleChat, toggleTerminal, toggleSettings } = useUIStore()
   const { tabs } = useEditorStore()
   const { theme } = useSettingsStore()
+
+  // Initialize zoom level from storage
+  useEffect(() => {
+    initZoom()
+  }, [])
+
+  // Global keyboard shortcuts (Zoom In, Zoom Out, Reset Zoom, Sidebars)
+  useEffect(() => {
+    const handleGlobalKeyDown = (e: KeyboardEvent) => {
+      if (e.ctrlKey || e.metaKey) {
+        // Zoom In: Ctrl + = or Ctrl + + or Ctrl + NumpadAdd
+        if (
+          e.key === '=' ||
+          e.key === '+' ||
+          e.code === 'Equal' ||
+          e.code === 'NumpadAdd' ||
+          (e.shiftKey && (e.key === '+' || e.code === 'Equal'))
+        ) {
+          e.preventDefault()
+          e.stopPropagation()
+          zoomIn()
+          return
+        }
+
+        // Zoom Out: Ctrl + - or Ctrl + _ or Ctrl + NumpadSubtract
+        if (
+          e.key === '-' ||
+          e.key === '_' ||
+          e.code === 'Minus' ||
+          e.code === 'NumpadSubtract'
+        ) {
+          e.preventDefault()
+          e.stopPropagation()
+          zoomOut()
+          return
+        }
+
+        // Reset Zoom: Ctrl + 0 or Ctrl + Numpad0
+        if (
+          e.key === '0' ||
+          e.code === 'Digit0' ||
+          e.code === 'Numpad0'
+        ) {
+          e.preventDefault()
+          e.stopPropagation()
+          resetZoom()
+          return
+        }
+
+        // Toggle Sidebar: Ctrl + B
+        if (e.key === 'b' || e.key === 'B') {
+          e.preventDefault()
+          toggleSidebar()
+          return
+        }
+
+        // Toggle Chat: Ctrl + L
+        if (e.key === 'l' || e.key === 'L') {
+          e.preventDefault()
+          toggleChat()
+          return
+        }
+
+        // Toggle Terminal: Ctrl + `
+        if (e.key === '`') {
+          e.preventDefault()
+          toggleTerminal()
+          return
+        }
+
+        // Settings: Ctrl + ,
+        if (e.key === ',') {
+          e.preventDefault()
+          toggleSettings()
+          return
+        }
+      }
+    }
+
+    window.addEventListener('keydown', handleGlobalKeyDown, { capture: true })
+    return () => {
+      window.removeEventListener('keydown', handleGlobalKeyDown, { capture: true })
+    }
+  }, [toggleSidebar, toggleChat, toggleTerminal, toggleSettings])
 
   // Apply theme class to html element
   useEffect(() => {
@@ -81,6 +167,7 @@ export default function App() {
       {/* Modals / Overlays */}
       {showSettings && <SettingsModal />}
       <CommandPalette />
+      <ZoomBadge />
       <SplashScreen durationMs={1100} />
     </div>
   )

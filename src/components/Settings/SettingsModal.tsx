@@ -67,15 +67,8 @@ export function SettingsModal() {
           display: 'flex', flexDirection: 'column',
           padding: '16px 0',
         }}>
-          <div style={{ padding: '0 16px 16px', display: 'flex', alignItems: 'center', gap: 8 }}>
-            <img
-              src="./brand/apex-icon.png"
-              alt="APEX"
-              style={{ width: 18, height: 18, objectFit: 'contain' }}
-            />
-            <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-primary)', letterSpacing: '0.06em' }}>
-              APEX
-            </span>
+          <div style={{ padding: '0 16px 14px', fontSize: 11, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+            Settings
           </div>
           {TABS.map(tab => (
             <button
@@ -524,16 +517,14 @@ function AboutTab() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', padding: '16px 0' }}>
       <img
-        src="./brand/apex-logo.png"
+        src="./brand/apex-icon.png"
         alt="APEX"
         style={{
-          width: 120,
-          height: 120,
+          width: 96,
+          height: 96,
           objectFit: 'contain',
-          borderRadius: 16,
           marginBottom: 16,
-          boxShadow: '0 12px 32px rgba(0, 102, 255, 0.25)',
-          border: '1px solid rgba(0, 102, 255, 0.2)',
+          filter: 'drop-shadow(0 12px 32px rgba(0, 102, 255, 0.35))',
         }}
       />
       <h2 style={{ fontSize: 24, fontWeight: 800, letterSpacing: '0.08em', color: 'var(--text-primary)', marginBottom: 4 }}>

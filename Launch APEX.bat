@@ -8,3 +8,4 @@ if exist "release\win-unpacked\APEX.exe" (
 ) else (
   npm start
 )
+

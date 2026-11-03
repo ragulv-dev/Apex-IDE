@@ -112,8 +112,8 @@ export const StatusBar: React.FC = () => {
             </>
           ) : (
             <>
-              <img src="./brand/apex-icon.png" alt="APEX" style={{ width: 12, height: 12, objectFit: 'contain' }} />
-              <span>APEX AI</span>
+              <Bot size={12} />
+              <span>Configure AI</span>
             </>
           )}
         </button>

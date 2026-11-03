@@ -20,3 +20,4 @@ export const BRAND = {
     splash: './brand/apex-splash.png',
   },
 } as const
+

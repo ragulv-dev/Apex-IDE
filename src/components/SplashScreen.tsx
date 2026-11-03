@@ -46,18 +46,20 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish, durationMs
     >
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
         <img
-          src="./brand/apex-splash.png"
+          src="./brand/apex-icon.png"
           alt="APEX"
           style={{
-            width: 180,
-            height: 180,
+            width: 130,
+            height: 130,
             objectFit: 'contain',
-            borderRadius: 20,
-            marginBottom: 24,
-            filter: 'drop-shadow(0 16px 48px rgba(0, 102, 255, 0.3))',
+            marginBottom: 20,
+            filter: 'drop-shadow(0 16px 48px rgba(0, 102, 255, 0.35))',
             animation: 'fadeIn 0.4s ease',
           }}
         />
+        <h1 style={{ fontSize: 22, fontWeight: 800, letterSpacing: '0.1em', color: '#FFFFFF', marginBottom: 24 }}>
+          APEX
+        </h1>
 
         {/* Minimal progress indicator */}
         <div
@@ -95,3 +97,4 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish, durationMs
     </div>
   )
 }
+

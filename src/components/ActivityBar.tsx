@@ -32,36 +32,12 @@ export function ActivityBar() {
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        paddingTop: 4,
+        paddingTop: 8,
         flexShrink: 0,
       }}
     >
-      {/* Brand Icon Button */}
-      <div className="w-full flex justify-center pb-2 pt-1 border-b border-[#18181b] mb-2">
-        <button
-          onClick={toggleSettings}
-          title="APEX — Professional Developer IDE"
-          style={{
-            background: 'none',
-            border: 'none',
-            cursor: 'pointer',
-            padding: 4,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            borderRadius: 4,
-          }}
-        >
-          <img
-            src="./brand/apex-icon.png"
-            alt="APEX"
-            style={{ width: 22, height: 22, objectFit: 'contain' }}
-          />
-        </button>
-      </div>
-
       {/* Top nav items */}
-      <div className="flex flex-col gap-1 w-full items-center">
+      <div className="flex flex-col gap-1.5 w-full items-center">
         {NAV_ITEMS.map(({ id, icon: Icon, label, shortcut }) => (
           <ActivityButton
             key={id}

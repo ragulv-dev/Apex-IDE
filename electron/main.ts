@@ -10,23 +10,24 @@ import {
   MenuItem,
 } from 'electron'
 import { join, resolve } from 'path'
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs'
+import { existsSync, mkdirSync, readFileSync, writeFileSync, appendFileSync } from 'fs'
+
+function logDebug(msg: string) {
+  try {
+    const logPath = join(process.env.APPDATA || process.cwd(), 'apex-ide-debug.log')
+    appendFileSync(logPath, `[${new Date().toISOString()}] ${msg}\n`)
+  } catch {}
+}
+
+logDebug('Main module loaded')
 
 process.on('uncaughtException', (error) => {
-  try {
-    writeFileSync(join(process.cwd(), 'crash.log'), String(error?.stack || error))
-  } catch {}
+  logDebug(`uncaughtException: ${error?.stack || error}`)
 })
 
 process.on('unhandledRejection', (reason) => {
-  try {
-    writeFileSync(join(process.cwd(), 'rejection.log'), String(reason))
-  } catch {}
+  logDebug(`unhandledRejection: ${reason}`)
 })
-
-try {
-  writeFileSync(join(process.cwd(), 'startup.log'), `Startup: ${new Date().toISOString()}\n`)
-} catch {}
 import { registerFileSystemHandlers } from './ipc/filesystem'
 import { registerProviderHandlers } from './ipc/providers'
 import { registerCredentialHandlers } from './ipc/credentials'
@@ -44,13 +45,30 @@ const RENDERER_URL = 'http://localhost:5173'
 
 let mainWindow: BrowserWindow | null = null
 
+// ─── Resolve App Icon ────────────────────────────────────────────────────────
+function getAppIconPath(): string | undefined {
+  const candidates = [
+    join(__dirname, '../public/icon.ico'),
+    join(__dirname, '../dist/icon.ico'),
+    join(__dirname, 'icon.ico'),
+    join(process.resourcesPath, 'icon.ico'),
+    join(process.resourcesPath, 'public/icon.ico'),
+    join(process.cwd(), 'public/icon.ico'),
+    join(process.cwd(), 'dist/icon.ico'),
+    join(__dirname, '../public/icon.png'),
+    join(__dirname, '../dist/icon.png'),
+    join(process.cwd(), 'public/icon.png'),
+  ]
+  return candidates.find(p => existsSync(p))
+}
+
 // ─── Window Creation ──────────────────────────────────────────────────────────
 async function createWindow() {
+  logDebug('createWindow() called')
   ensureAppDataDir()
 
-  const iconPath = existsSync(join(__dirname, '../public/icon.ico'))
-    ? join(__dirname, '../public/icon.ico')
-    : undefined
+  const iconPath = getAppIconPath()
+  logDebug(`iconPath: ${iconPath}`)
 
   mainWindow = new BrowserWindow({
     width: 1400,
@@ -72,19 +90,33 @@ async function createWindow() {
     },
   })
 
+  // Explicitly set window & taskbar icon if available
+  if (iconPath) {
+    try {
+      mainWindow.setIcon(iconPath)
+    } catch (e) {
+      logDebug(`setIcon error: ${e}`)
+    }
+  }
+
   // Load renderer
   const distHtml = join(__dirname, '../dist/index.html')
+  logDebug(`distHtml: ${distHtml}, exists: ${existsSync(distHtml)}`)
   if (isDev && !existsSync(distHtml)) {
+    logDebug(`Loading RENDERER_URL: ${RENDERER_URL}`)
     await mainWindow.loadURL(RENDERER_URL)
     mainWindow.webContents.openDevTools({ mode: 'detach' })
   } else if (existsSync(distHtml)) {
+    logDebug(`Loading distHtml: ${distHtml}`)
     await mainWindow.loadFile(distHtml)
   } else {
+    logDebug(`Fallback loading RENDERER_URL: ${RENDERER_URL}`)
     await mainWindow.loadURL(RENDERER_URL)
   }
 
   // Show window once loaded (prevents flash)
   mainWindow.once('ready-to-show', () => {
+    logDebug('mainWindow ready-to-show fired')
     mainWindow?.show()
     mainWindow?.focus()
   })
@@ -104,6 +136,38 @@ async function createWindow() {
     else mainWindow?.maximize()
   })
   ipcMain.on('window:close', () => mainWindow?.close())
+
+  // Window zoom controls
+  ipcMain.on('window:zoomIn', (_e, factor?: number) => {
+    if (!mainWindow) return
+    if (typeof factor === 'number') {
+      mainWindow.webContents.setZoomFactor(factor)
+    } else {
+      const current = mainWindow.webContents.getZoomFactor()
+      mainWindow.webContents.setZoomFactor(Math.min(Math.round((current + 0.1) * 10) / 10, 3.0))
+    }
+  })
+  ipcMain.on('window:zoomOut', (_e, factor?: number) => {
+    if (!mainWindow) return
+    if (typeof factor === 'number') {
+      mainWindow.webContents.setZoomFactor(factor)
+    } else {
+      const current = mainWindow.webContents.getZoomFactor()
+      mainWindow.webContents.setZoomFactor(Math.max(Math.round((current - 0.1) * 10) / 10, 0.4))
+    }
+  })
+  ipcMain.on('window:resetZoom', () => {
+    if (!mainWindow) return
+    mainWindow.webContents.setZoomFactor(1.0)
+  })
+  ipcMain.on('window:setZoomFactor', (_e, factor: number) => {
+    if (!mainWindow) return
+    mainWindow.webContents.setZoomFactor(factor)
+  })
+  ipcMain.on('window:toggleFullScreen', () => {
+    if (!mainWindow) return
+    mainWindow.setFullScreen(!mainWindow.isFullScreen())
+  })
 
   mainWindow.on('maximize', () => mainWindow?.webContents.send('window:maximized', true))
   mainWindow.on('unmaximize', () => mainWindow?.webContents.send('window:maximized', false))
@@ -175,10 +239,18 @@ function registerIpcHandlers() {
 
 // Prevent multiple instances
 const gotLock = app.requestSingleInstanceLock()
+logDebug(`requestSingleInstanceLock: ${gotLock}`)
 if (!gotLock) {
+  logDebug('Single instance lock failed — quitting')
   app.quit()
 } else {
+  // Set explicit Windows Application User Model ID for taskbar grouping & icon
+  if (process.platform === 'win32') {
+    app.setAppUserModelId('com.apex.app')
+  }
+
   app.on('second-instance', () => {
+    logDebug('second-instance triggered')
     if (mainWindow) {
       if (mainWindow.isMinimized()) mainWindow.restore()
       mainWindow.focus()
@@ -187,6 +259,7 @@ if (!gotLock) {
 
   // ─── App Lifecycle ────────────────────────────────────────────────────────────
   app.whenReady().then(async () => {
+    logDebug('app.whenReady fired')
     registerIpcHandlers()
     await createWindow()
 
@@ -196,6 +269,7 @@ if (!gotLock) {
   })
 
   app.on('window-all-closed', () => {
+    logDebug('window-all-closed fired')
     if (process.platform !== 'darwin') app.quit()
   })
 }

@@ -1,4 +1,4 @@
-import { contextBridge, ipcRenderer } from 'electron'
+import { contextBridge, ipcRenderer, webFrame } from 'electron'
 
 // ─── Type-safe IPC bridge exposed to renderer ─────────────────────────────────
 // SECURITY: Only expose specific, named channels. Never expose ipcRenderer directly.
@@ -9,6 +9,51 @@ const electronAPI = {
     minimize: () => ipcRenderer.send('window:minimize'),
     maximize: () => ipcRenderer.send('window:maximize'),
     close: () => ipcRenderer.send('window:close'),
+    zoomIn: () => {
+      try {
+        const current = webFrame.getZoomFactor()
+        const next = Math.min(Math.round((current + 0.1) * 10) / 10, 3.0)
+        webFrame.setZoomFactor(next)
+        ipcRenderer.send('window:zoomIn', next)
+        return next
+      } catch {
+        ipcRenderer.send('window:zoomIn')
+        return 1.0
+      }
+    },
+    zoomOut: () => {
+      try {
+        const current = webFrame.getZoomFactor()
+        const next = Math.max(Math.round((current - 0.1) * 10) / 10, 0.4)
+        webFrame.setZoomFactor(next)
+        ipcRenderer.send('window:zoomOut', next)
+        return next
+      } catch {
+        ipcRenderer.send('window:zoomOut')
+        return 1.0
+      }
+    },
+    resetZoom: () => {
+      try {
+        webFrame.setZoomFactor(1.0)
+      } catch {}
+      ipcRenderer.send('window:resetZoom')
+      return 1.0
+    },
+    getZoomFactor: () => {
+      try {
+        return webFrame.getZoomFactor()
+      } catch {
+        return 1.0
+      }
+    },
+    setZoomFactor: (factor: number) => {
+      try {
+        webFrame.setZoomFactor(factor)
+      } catch {}
+      ipcRenderer.send('window:setZoomFactor', factor)
+    },
+    toggleFullScreen: () => ipcRenderer.send('window:toggleFullScreen'),
     onMaximized: (cb: (maximized: boolean) => void) => {
       ipcRenderer.on('window:maximized', (_e, val) => cb(val))
       return () => ipcRenderer.removeAllListeners('window:maximized')

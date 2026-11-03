@@ -33,18 +33,16 @@ export const WelcomeScreen: React.FC = () => {
       }}
     >
       <div style={{ maxWidth: 640, width: '100%', textAlign: 'center' }}>
-        {/* Official APEX Brand Logo */}
+        {/* Official APEX Brand Emblem */}
         <div className="flex justify-center mb-5">
           <img
-            src="./brand/apex-logo.png"
+            src="./brand/apex-icon.png"
             alt="APEX"
             style={{
-              width: 140,
-              height: 140,
+              width: 100,
+              height: 100,
               objectFit: 'contain',
-              borderRadius: 16,
-              boxShadow: '0 12px 40px rgba(0, 102, 255, 0.22)',
-              border: '1px solid rgba(0, 102, 255, 0.15)',
+              filter: 'drop-shadow(0 12px 36px rgba(0, 102, 255, 0.35))',
             }}
           />
         </div>

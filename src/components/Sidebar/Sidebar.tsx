@@ -74,18 +74,10 @@ export function Sidebar() {
         padding: '8px 12px',
         borderBottom: '1px solid var(--border)',
         flexShrink: 0,
-        background: '#030303',
       }}>
-        <div className="flex items-center gap-2">
-          <img
-            src="./brand/apex-icon.png"
-            alt="APEX"
-            style={{ width: 15, height: 15, objectFit: 'contain' }}
-          />
-          <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-primary)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-            {activePanel === 'search' ? 'Search' : activePanel === 'git' ? 'Source Control' : 'APEX Explorer'}
-          </span>
-        </div>
+        <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+          {activePanel === 'search' ? 'Search' : activePanel === 'git' ? 'Source Control' : 'Explorer'}
+        </span>
         <div className="flex items-center gap-1">
           <IconBtn title="New File" onClick={() => {}}>
             <FilePlus size={14} />
@@ -219,24 +211,10 @@ function fileIconColor(ext: string): string {
 
 function EmptyState({ onOpen }: { onOpen: () => void }) {
   return (
-    <div style={{ padding: '36px 16px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-      <img
-        src="./brand/apex-logo.png"
-        alt="APEX"
-        style={{
-          width: 80,
-          height: 80,
-          objectFit: 'contain',
-          marginBottom: 14,
-          borderRadius: 8,
-          filter: 'drop-shadow(0 4px 16px rgba(0, 102, 255, 0.2))',
-        }}
-      />
-      <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-primary)', letterSpacing: '0.06em', marginBottom: 4 }}>
-        APEX
-      </div>
-      <p style={{ color: 'var(--text-secondary)', fontSize: 12, marginBottom: 12, maxWidth: 200 }}>
-        No workspace folder opened
+    <div style={{ padding: '24px 16px', textAlign: 'center' }}>
+      <FolderOpen size={32} style={{ color: 'var(--text-muted)', margin: '0 auto 12px' }} />
+      <p style={{ color: 'var(--text-muted)', fontSize: 12, marginBottom: 12 }}>
+        No folder opened
       </p>
     </div>
   )
