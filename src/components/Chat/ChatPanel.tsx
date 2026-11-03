@@ -311,15 +311,17 @@ function MessageBubble({ message, streaming }: { message: Message; streaming?: b
         <span style={{
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           width: 20, height: 20,
-          borderRadius: '50%',
-          background: isUser ? 'var(--accent)' : 'var(--bg-active)',
+          borderRadius: 4,
+          background: isUser ? 'var(--accent)' : '#000000',
+          border: isUser ? 'none' : '1px solid var(--border)',
           color: isUser ? '#fff' : 'var(--text-secondary)',
           flexShrink: 0,
+          overflow: 'hidden',
         }}>
-          {isUser ? <User size={11} /> : <Bot size={11} />}
+          {isUser ? <User size={11} /> : <img src="./brand/apex-icon.png" alt="APEX" style={{ width: 14, height: 14, objectFit: 'contain' }} />}
         </span>
         <span style={{ fontSize: 11, color: 'var(--text-muted)', fontWeight: 600 }}>
-          {isUser ? 'You' : message.model || 'Assistant'}
+          {isUser ? 'You' : message.model || 'APEX AI'}
         </span>
         {streaming && (
           <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--success)', animation: 'pulse 1s infinite' }} />
@@ -380,10 +382,24 @@ function MessageBubble({ message, streaming }: { message: Message; streaming?: b
 
 function EmptyChat() {
   return (
-    <div style={{ padding: '24px 16px', textAlign: 'center' }}>
-      <Bot size={32} style={{ color: 'var(--text-muted)', margin: '0 auto 12px' }} />
-      <p style={{ color: 'var(--text-muted)', fontSize: 13, marginBottom: 8 }}>
-        Ask anything about your code
+    <div style={{ padding: '36px 16px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+      <img
+        src="./brand/apex-logo.png"
+        alt="APEX"
+        style={{
+          width: 72,
+          height: 72,
+          objectFit: 'contain',
+          borderRadius: 12,
+          marginBottom: 16,
+          filter: 'drop-shadow(0 4px 16px rgba(0, 102, 255, 0.25))',
+        }}
+      />
+      <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)', letterSpacing: '0.06em', marginBottom: 4 }}>
+        APEX AI
+      </div>
+      <p style={{ color: 'var(--text-secondary)', fontSize: 12, marginBottom: 8, maxWidth: 220 }}>
+        Ask questions, architect systems, or generate code across your project.
       </p>
       <p style={{ color: 'var(--text-muted)', fontSize: 11 }}>
         Configure a provider in Settings to get started
@@ -393,7 +409,7 @@ function EmptyChat() {
 }
 
 function buildSystemPrompt(workspacePath: string | null): string {
-  return `You are Apex IDE's AI assistant — an expert coding assistant. 
+  return `You are APEX AI — the official intelligence engine of the APEX IDE. 
 ${workspacePath ? `The user's current workspace is: ${workspacePath}` : 'No workspace is currently open.'}
 
 You help with:

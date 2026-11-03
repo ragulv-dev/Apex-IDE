@@ -23,12 +23,16 @@ export function TitleBar() {
         userSelect: 'none',
       }}
     >
-      {/* Logo + App Name */}
+      {/* Brand Logo + Name */}
       <div className="no-drag flex items-center gap-2 px-3">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-          <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" fill="var(--accent)" stroke="var(--accent)" strokeWidth="1" strokeLinejoin="round"/>
-        </svg>
-        <span style={{ fontSize: 12, color: 'var(--text-secondary)', fontWeight: 500 }}>Apex IDE</span>
+        <img
+          src="./brand/apex-icon.png"
+          alt="APEX"
+          style={{ width: 18, height: 18, objectFit: 'contain', borderRadius: 2 }}
+        />
+        <span style={{ fontSize: 12, color: 'var(--text-primary)', fontWeight: 700, letterSpacing: '0.06em' }}>
+          APEX
+        </span>
       </div>
 
       {/* Centered menu shortcuts */}

@@ -11,6 +11,22 @@ import {
 } from 'electron'
 import { join, resolve } from 'path'
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs'
+
+process.on('uncaughtException', (error) => {
+  try {
+    writeFileSync(join(process.cwd(), 'crash.log'), String(error?.stack || error))
+  } catch {}
+})
+
+process.on('unhandledRejection', (reason) => {
+  try {
+    writeFileSync(join(process.cwd(), 'rejection.log'), String(reason))
+  } catch {}
+})
+
+try {
+  writeFileSync(join(process.cwd(), 'startup.log'), `Startup: ${new Date().toISOString()}\n`)
+} catch {}
 import { registerFileSystemHandlers } from './ipc/filesystem'
 import { registerProviderHandlers } from './ipc/providers'
 import { registerCredentialHandlers } from './ipc/credentials'
@@ -32,6 +48,10 @@ let mainWindow: BrowserWindow | null = null
 async function createWindow() {
   ensureAppDataDir()
 
+  const iconPath = existsSync(join(__dirname, '../public/icon.ico'))
+    ? join(__dirname, '../public/icon.ico')
+    : undefined
+
   mainWindow = new BrowserWindow({
     width: 1400,
     height: 900,
@@ -39,7 +59,8 @@ async function createWindow() {
     minHeight: 600,
     frame: false,          // Custom title bar
     titleBarStyle: 'hidden',
-    backgroundColor: '#0d1117',
+    backgroundColor: '#000000',
+    icon: iconPath,
     show: false,           // Show after ready-to-show
     webPreferences: {
       preload: join(__dirname, 'preload.js'),
@@ -52,11 +73,14 @@ async function createWindow() {
   })
 
   // Load renderer
-  if (isDev) {
+  const distHtml = join(__dirname, '../dist/index.html')
+  if (isDev && !existsSync(distHtml)) {
     await mainWindow.loadURL(RENDERER_URL)
     mainWindow.webContents.openDevTools({ mode: 'detach' })
+  } else if (existsSync(distHtml)) {
+    await mainWindow.loadFile(distHtml)
   } else {
-    await mainWindow.loadFile(join(__dirname, '../dist/index.html'))
+    await mainWindow.loadURL(RENDERER_URL)
   }
 
   // Show window once loaded (prevents flash)
@@ -64,6 +88,14 @@ async function createWindow() {
     mainWindow?.show()
     mainWindow?.focus()
   })
+
+  // Safety fallback: ensure window is visible even if ready-to-show doesn't fire
+  setTimeout(() => {
+    if (mainWindow && !mainWindow.isVisible()) {
+      mainWindow.show()
+      mainWindow.focus()
+    }
+  }, 1000)
 
   // Window state IPC
   ipcMain.on('window:minimize', () => mainWindow?.minimize())
@@ -141,20 +173,6 @@ function registerIpcHandlers() {
   ipcMain.handle('safeStorage:available', () => safeStorage.isEncryptionAvailable())
 }
 
-// ─── App Lifecycle ────────────────────────────────────────────────────────────
-app.whenReady().then(async () => {
-  registerIpcHandlers()
-  await createWindow()
-
-  app.on('activate', async () => {
-    if (BrowserWindow.getAllWindows().length === 0) await createWindow()
-  })
-})
-
-app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') app.quit()
-})
-
 // Prevent multiple instances
 const gotLock = app.requestSingleInstanceLock()
 if (!gotLock) {
@@ -165,6 +183,20 @@ if (!gotLock) {
       if (mainWindow.isMinimized()) mainWindow.restore()
       mainWindow.focus()
     }
+  })
+
+  // ─── App Lifecycle ────────────────────────────────────────────────────────────
+  app.whenReady().then(async () => {
+    registerIpcHandlers()
+    await createWindow()
+
+    app.on('activate', async () => {
+      if (BrowserWindow.getAllWindows().length === 0) await createWindow()
+    })
+  })
+
+  app.on('window-all-closed', () => {
+    if (process.platform !== 'darwin') app.quit()
   })
 }
 

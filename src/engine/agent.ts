@@ -165,7 +165,7 @@ export class AgentEngine {
   }
 
   public getSystemPrompt(mode: AgentMode, workspacePath: string | null): string {
-    const base = `You are Apex IDE's world-class AI coding agent.
+    const base = `You are APEX AI — the official autonomous coding agent of APEX.
 Workspace: ${workspacePath ? workspacePath : 'No workspace open'}`
 
     if (mode === 'ask') {
@@ -199,3 +199,4 @@ Always preserve existing docstrings, comments, and style.`
 }
 
 export const agentEngine = new AgentEngine()
+

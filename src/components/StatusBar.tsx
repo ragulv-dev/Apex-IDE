@@ -35,7 +35,7 @@ export const StatusBar: React.FC = () => {
     <div
       style={{
         height: 'var(--status-bar-height)',
-        background: '#010409',
+        background: '#000000',
         borderTop: '1px solid var(--border)',
         display: 'flex',
         alignItems: 'center',
@@ -112,8 +112,8 @@ export const StatusBar: React.FC = () => {
             </>
           ) : (
             <>
-              <Bot size={12} />
-              <span>Configure AI</span>
+              <img src="./brand/apex-icon.png" alt="APEX" style={{ width: 12, height: 12, objectFit: 'contain' }} />
+              <span>APEX AI</span>
             </>
           )}
         </button>
@@ -137,3 +137,4 @@ const itemBtnStyle: React.CSSProperties = {
   borderRadius: 'var(--radius-sm)',
   cursor: 'pointer',
 }
+

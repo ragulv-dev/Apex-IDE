@@ -229,3 +229,4 @@ export function registerIndexerHandlers() {
     return { ok: true, stats: indexer.getStats() }
   })
 }
+

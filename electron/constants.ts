@@ -15,3 +15,4 @@ export function ensureAppDataDir() {
     mkdirSync(APP_DATA_DIR, { recursive: true })
   }
 }
+

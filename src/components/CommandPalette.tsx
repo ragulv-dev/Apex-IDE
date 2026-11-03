@@ -170,8 +170,8 @@ export const CommandPalette: React.FC = () => {
         }}
       >
         {/* Search Input Bar */}
-        <div style={{ display: 'flex', alignItems: 'center', padding: '8px 12px', borderBottom: '1px solid var(--border)' }}>
-          <Search size={16} style={{ color: 'var(--text-muted)', marginRight: 8, flexShrink: 0 }} />
+        <div style={{ display: 'flex', alignItems: 'center', padding: '8px 12px', borderBottom: '1px solid var(--border)', background: '#050505' }}>
+          <img src="./brand/apex-icon.png" alt="APEX" style={{ width: 16, height: 16, marginRight: 10, objectFit: 'contain' }} />
           <input
             ref={inputRef}
             type="text"
@@ -253,3 +253,4 @@ export const CommandPalette: React.FC = () => {
     </div>
   )
 }
+

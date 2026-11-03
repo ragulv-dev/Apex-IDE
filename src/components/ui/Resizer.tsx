@@ -81,3 +81,4 @@ export const Resizer: React.FC<ResizerProps> = ({ direction }) => {
     />
   )
 }
+

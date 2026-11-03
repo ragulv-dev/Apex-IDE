@@ -1,7 +1,7 @@
 {
-  "name": "apex-ide",
-  "version": "0.1.0",
-  "description": "Universal AI-Powered IDE — BYOK, multi-provider, Monaco-based",
+  "name": "apex",
+  "version": "1.0.0",
+  "description": "APEX — Professional Developer IDE & Autonomous Agent Workspace",
   "private": true,
   "main": "dist-electron/main.js",
   "scripts": {
@@ -56,14 +56,15 @@
     "wait-on": "^8.0.1"
   },
   "build": {
-    "appId": "com.apexide.app",
-    "productName": "Apex IDE",
+    "appId": "com.apex.app",
+    "productName": "APEX",
     "directories": {
       "output": "release"
     },
     "files": [
       "dist/**",
       "dist-electron/**",
+      "public/**",
       "node_modules/**"
     ],
     "win": {

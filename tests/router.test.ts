@@ -60,3 +60,4 @@ describe('ModelRouter - Error Classification & Fallback Routing', () => {
     expect(autocomplete.modelId).toBe('qwen2.5-coder:7b')
   })
 })
+

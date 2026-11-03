@@ -61,3 +61,4 @@ describe('Provider Architecture & Adapters', () => {
     expect(models[1].id).toBe('qwen2.5-coder:7b')
   })
 })
+

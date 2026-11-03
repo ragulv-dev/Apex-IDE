@@ -28,3 +28,4 @@ describe('Agent Engine & Tool Schema', () => {
     expect(agentPrompt).toContain('Autonomous Coding')
   })
 })
+

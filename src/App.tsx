@@ -10,6 +10,7 @@ import { TerminalPanel } from './components/Terminal/TerminalPanel'
 import { SettingsModal } from './components/Settings/SettingsModal'
 import { CommandPalette } from './components/CommandPalette'
 import { WelcomeScreen } from './components/WelcomeScreen'
+import { SplashScreen } from './components/SplashScreen'
 import { useEditorStore } from './stores'
 import { Resizer } from './components/ui/Resizer'
 
@@ -80,6 +81,7 @@ export default function App() {
       {/* Modals / Overlays */}
       {showSettings && <SettingsModal />}
       <CommandPalette />
+      <SplashScreen durationMs={1100} />
     </div>
   )
 }

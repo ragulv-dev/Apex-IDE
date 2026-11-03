@@ -33,29 +33,27 @@ export const WelcomeScreen: React.FC = () => {
       }}
     >
       <div style={{ maxWidth: 640, width: '100%', textAlign: 'center' }}>
-        {/* Logo / Badge */}
-        <div className="flex justify-center mb-4">
-          <div
+        {/* Official APEX Brand Logo */}
+        <div className="flex justify-center mb-5">
+          <img
+            src="./brand/apex-logo.png"
+            alt="APEX"
             style={{
-              width: 56,
-              height: 56,
+              width: 140,
+              height: 140,
+              objectFit: 'contain',
               borderRadius: 16,
-              background: 'linear-gradient(135deg, #1f6feb 0%, #388bfd 50%, #58a6ff 100%)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              boxShadow: '0 8px 24px rgba(56, 139, 253, 0.3)',
+              boxShadow: '0 12px 40px rgba(0, 102, 255, 0.22)',
+              border: '1px solid rgba(0, 102, 255, 0.15)',
             }}
-          >
-            <Sparkles size={28} color="#ffffff" />
-          </div>
+          />
         </div>
 
-        <h1 style={{ fontSize: 26, fontWeight: 700, marginBottom: 8, letterSpacing: '-0.02em' }}>
-          Apex IDE
+        <h1 style={{ fontSize: 26, fontWeight: 800, marginBottom: 6, letterSpacing: '0.08em', color: 'var(--text-primary)' }}>
+          APEX
         </h1>
-        <p style={{ fontSize: 14, color: 'var(--text-secondary)', marginBottom: 28 }}>
-          Universal AI-Powered Desktop IDE & Agent Workspace
+        <p style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 28 }}>
+          Professional Developer IDE & Autonomous Agent Workspace
         </p>
 
         {/* Quick action grid */}
@@ -158,3 +156,4 @@ function ActionButton({ icon, title, desc, onClick }: {
     </button>
   )
 }
+

@@ -62,13 +62,20 @@ export function SettingsModal() {
       }}>
         {/* Sidebar tabs */}
         <div style={{
-          width: 160, background: 'var(--bg-sidebar)',
+          width: 170, background: 'var(--bg-sidebar)',
           borderRight: '1px solid var(--border)',
           display: 'flex', flexDirection: 'column',
           padding: '16px 0',
         }}>
-          <div style={{ padding: '0 12px 12px', fontSize: 11, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
-            Settings
+          <div style={{ padding: '0 16px 16px', display: 'flex', alignItems: 'center', gap: 8 }}>
+            <img
+              src="./brand/apex-icon.png"
+              alt="APEX"
+              style={{ width: 18, height: 18, objectFit: 'contain' }}
+            />
+            <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-primary)', letterSpacing: '0.06em' }}>
+              APEX
+            </span>
           </div>
           {TABS.map(tab => (
             <button
@@ -515,12 +522,51 @@ function AITab() {
 // ─── About Tab ────────────────────────────────────────────────────────────────
 function AboutTab() {
   return (
-    <div>
-      <h2 style={{ fontSize: 16, fontWeight: 600, marginBottom: 16 }}>About Apex IDE</h2>
-      <div style={{ color: 'var(--text-secondary)', fontSize: 13, lineHeight: 1.8 }}>
-        <p><strong style={{ color: 'var(--text-primary)' }}>Version:</strong> 0.1.0</p>
-        <p><strong style={{ color: 'var(--text-primary)' }}>Built with:</strong> Electron, React, Monaco Editor, TypeScript</p>
-        <p style={{ marginTop: 12 }}>Universal AI IDE supporting 15+ AI providers through a single interface with BYOK (Bring Your Own Key).</p>
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', padding: '16px 0' }}>
+      <img
+        src="./brand/apex-logo.png"
+        alt="APEX"
+        style={{
+          width: 120,
+          height: 120,
+          objectFit: 'contain',
+          borderRadius: 16,
+          marginBottom: 16,
+          boxShadow: '0 12px 32px rgba(0, 102, 255, 0.25)',
+          border: '1px solid rgba(0, 102, 255, 0.2)',
+        }}
+      />
+      <h2 style={{ fontSize: 24, fontWeight: 800, letterSpacing: '0.08em', color: 'var(--text-primary)', marginBottom: 4 }}>
+        APEX
+      </h2>
+      <p style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 20 }}>
+        Professional Developer IDE & Autonomous Agent Workspace
+      </p>
+
+      <div style={{
+        maxWidth: 420,
+        width: '100%',
+        background: 'var(--bg-input)',
+        border: '1px solid var(--border)',
+        borderRadius: 'var(--radius)',
+        padding: '16px 20px',
+        textAlign: 'left',
+        fontSize: 13,
+        color: 'var(--text-secondary)',
+        lineHeight: 1.8,
+      }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid var(--border)', paddingBottom: 8, marginBottom: 8 }}>
+          <strong style={{ color: 'var(--text-primary)' }}>Version</strong>
+          <span>1.0.0 Stable</span>
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid var(--border)', paddingBottom: 8, marginBottom: 8 }}>
+          <strong style={{ color: 'var(--text-primary)' }}>Architecture</strong>
+          <span>Electron + React 19 + Monaco Editor</span>
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+          <strong style={{ color: 'var(--text-primary)' }}>AI Providers</strong>
+          <span style={{ color: 'var(--accent)' }}>15+ Supported (BYOK)</span>
+        </div>
       </div>
     </div>
   )
