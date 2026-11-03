@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useUIStore, useWorkspaceStore } from '../stores'
 import { zoomIn, zoomOut, resetZoom } from '../utils/zoom'
+import { Search, Bot, Settings } from 'lucide-react'
 
 interface MenuItemDef {
   label: string
@@ -16,7 +17,7 @@ interface MenuDef {
 }
 
 export function TitleBar() {
-  const { toggleSettings, toggleSidebar, toggleChat, toggleTerminal, setCommandPaletteOpen } = useUIStore()
+  const { toggleSettings, toggleSidebar, toggleChat, toggleTerminal, setCommandPaletteOpen, showChat } = useUIStore()
   const { setWorkspacePath } = useWorkspaceStore()
   const [isMaximized, setIsMaximized] = useState(false)
   const [openMenu, setOpenMenu] = useState<string | null>(null)
@@ -249,8 +250,35 @@ export function TitleBar() {
         </div>
       </div>
 
-      {/* Window controls */}
+      {/* Right corner actions & Window controls */}
       <div className="no-drag flex items-center">
+        {/* Right corner toolbar: Search icon, Toggle Agent icon, Setting icon */}
+        <div className="flex items-center gap-1 mr-2">
+          <TitleBarActionBtn
+            title="Search / Command Palette (Ctrl+P / Ctrl+Shift+P)"
+            onClick={() => setCommandPaletteOpen(true)}
+          >
+            <Search size={14} />
+          </TitleBarActionBtn>
+          <TitleBarActionBtn
+            title={showChat ? "Hide AI Agent Panel (Ctrl+L)" : "Toggle AI Agent Panel (Ctrl+L)"}
+            onClick={toggleChat}
+            active={showChat}
+          >
+            <Bot size={14} />
+          </TitleBarActionBtn>
+          <TitleBarActionBtn
+            title="Settings (Ctrl+,)"
+            onClick={toggleSettings}
+          >
+            <Settings size={14} />
+          </TitleBarActionBtn>
+        </div>
+
+        {/* Vertical divider */}
+        <div style={{ width: 1, height: 16, background: 'var(--border)', marginRight: 4 }} />
+
+        {/* Window controls */}
         <WinBtn onClick={() => window.electron?.window?.minimize?.()} title="Minimize">
           <svg width="10" height="1" viewBox="0 0 10 1"><rect width="10" height="1" fill="currentColor"/></svg>
         </WinBtn>
@@ -272,6 +300,37 @@ export function TitleBar() {
         </WinBtn>
       </div>
     </div>
+  )
+}
+
+function TitleBarActionBtn({
+  children, onClick, title, active,
+}: {
+  children: React.ReactNode; onClick: () => void; title: string; active?: boolean
+}) {
+  const [hover, setHover] = useState(false)
+  return (
+    <button
+      onClick={onClick}
+      title={title}
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
+      style={{
+        background: active ? 'rgba(0, 102, 255, 0.22)' : hover ? 'var(--bg-hover)' : 'transparent',
+        border: active ? '1px solid rgba(0, 102, 255, 0.45)' : '1px solid transparent',
+        color: active ? '#00D9FF' : hover ? 'var(--text-primary)' : 'var(--text-secondary)',
+        width: 28,
+        height: 24,
+        borderRadius: 4,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        cursor: 'pointer',
+        transition: 'all 0.12s ease',
+      }}
+    >
+      {children}
+    </button>
   )
 }
 

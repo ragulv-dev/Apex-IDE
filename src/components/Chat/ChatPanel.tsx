@@ -10,7 +10,8 @@ import { agentEngine, AGENT_TOOLS_SCHEMA } from '../../engine/agent'
 import {
   Send, StopCircle, Plus, Trash2, Copy, Check,
   Bot, User, Terminal as TerminalIcon, FileCode,
-  Paperclip, RotateCcw, Sparkles, Compass, ShieldAlert
+  Paperclip, RotateCcw, Sparkles, Compass, ShieldAlert,
+  Search, Settings
 } from 'lucide-react'
 
 export function ChatPanel() {
@@ -24,6 +25,7 @@ export function ChatPanel() {
     fallbackProviderId, fallbackModelId, agentMode, setAgentMode
   } = useSettingsStore()
   const { workspacePath } = useWorkspaceStore()
+  const { toggleSettings, setCommandPaletteOpen } = useUIStore()
 
   const [input, setInput] = useState('')
   const [cancelStream, setCancelStream] = useState<(() => void) | null>(null)
@@ -177,6 +179,22 @@ export function ChatPanel() {
           ))}
         </div>
         <div className="flex items-center gap-1">
+          <IconBtn title="Search in Project / Command Palette (Ctrl+P)" onClick={() => setCommandPaletteOpen(true)}>
+            <Search size={14} />
+          </IconBtn>
+          <IconBtn
+            title={`Agent Mode: ${agentMode.toUpperCase()} (Click to cycle)`}
+            onClick={() => {
+              const modes: AgentMode[] = ['ask', 'plan', 'agent']
+              const next = modes[(modes.indexOf(agentMode) + 1) % modes.length]
+              setAgentMode(next)
+            }}
+          >
+            <Bot size={14} style={{ color: agentMode === 'agent' ? '#00D9FF' : undefined }} />
+          </IconBtn>
+          <IconBtn title="AI Settings & API Keys (Ctrl+,)" onClick={toggleSettings}>
+            <Settings size={14} />
+          </IconBtn>
           <IconBtn title="New Conversation" onClick={() => createConversation(providerId, modelId)}>
             <Plus size={14} />
           </IconBtn>

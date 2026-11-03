@@ -40,38 +40,81 @@ const getShell = () => {
 
 export function registerTerminalHandlers() {
   ipcMain.handle('terminal:create', (event, workDir?: string) => {
-    if (!pty) return { ok: false, error: 'node-pty not available. Run: npm run electron:rebuild' }
-
     const id = `term_${++sessionCounter}`
     const shell = getShell()
     const cwd = workDir || os.homedir()
 
+    // 1. Preferred: node-pty for full PTY support
+    if (pty) {
+      try {
+        const ptyProcess = pty.spawn(shell, [], {
+          name: 'xterm-256color',
+          cols: 120,
+          rows: 30,
+          cwd,
+          env: {
+            ...process.env,
+            TERM: 'xterm-256color',
+            COLORTERM: 'truecolor',
+          } as Record<string, string>,
+        })
+
+        ptyProcess.onData((data: string) => {
+          event.sender.send(`terminal:data:${id}`, data)
+        })
+
+        ptyProcess.onExit(({ exitCode }: { exitCode: number }) => {
+          event.sender.send(`terminal:exit:${id}`, exitCode)
+          sessions.delete(id)
+        })
+
+        sessions.set(id, { id, pty: ptyProcess })
+        return { ok: true, id, shell, pid: ptyProcess.pid }
+      } catch (err: any) {
+        console.warn('[terminal] pty.spawn failed, falling back to child_process:', err)
+      }
+    }
+
+    // 2. Resilient fallback: standard child_process shell
     try {
-      const ptyProcess = pty.spawn(shell, [], {
-        name: 'xterm-256color',
-        cols: 120,
-        rows: 30,
+      const { spawn } = require('child_process')
+      const proc = spawn(shell, [], {
         cwd,
-        env: {
-          ...process.env,
-          TERM: 'xterm-256color',
-          COLORTERM: 'truecolor',
-        } as Record<string, string>,
+        env: { ...process.env, TERM: 'xterm-256color' },
+        shell: true,
       })
 
-      ptyProcess.onData((data: string) => {
+      const fallbackPty: IPtyProcess = {
+        pid: proc.pid || 0,
+        onData: (cb) => {
+          proc.stdout?.on('data', (d: Buffer) => cb(d.toString()))
+          proc.stderr?.on('data', (d: Buffer) => cb(d.toString()))
+        },
+        onExit: (cb) => {
+          proc.on('exit', (code: number) => cb({ exitCode: code ?? 0 }))
+        },
+        write: (data: string) => {
+          proc.stdin?.write(data)
+        },
+        resize: () => {},
+        kill: () => {
+          try { proc.kill() } catch {}
+        },
+      }
+
+      fallbackPty.onData((data: string) => {
         event.sender.send(`terminal:data:${id}`, data)
       })
 
-      ptyProcess.onExit(({ exitCode }: { exitCode: number }) => {
+      fallbackPty.onExit(({ exitCode }: { exitCode: number }) => {
         event.sender.send(`terminal:exit:${id}`, exitCode)
         sessions.delete(id)
       })
 
-      sessions.set(id, { id, pty: ptyProcess })
-      return { ok: true, id, shell, pid: ptyProcess.pid }
+      sessions.set(id, { id, pty: fallbackPty })
+      return { ok: true, id, shell, pid: proc.pid }
     } catch (err: any) {
-      return { ok: false, error: err.message }
+      return { ok: false, error: 'Terminal unavailable: ' + err.message }
     }
   })
 

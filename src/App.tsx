@@ -130,26 +130,14 @@ export default function App() {
           </>
         )}
 
-        {/* Editor area */}
+        {/* Center column: Code Editor + Terminal (Terminal lives ONLY beneath the editor) */}
         <div className="flex flex-col flex-1 overflow-hidden">
-          <div className="flex flex-1 overflow-hidden">
-            {/* Code editor */}
-            <div className="flex-1 overflow-hidden flex flex-col">
-              {tabs.length === 0 ? <WelcomeScreen /> : <EditorArea />}
-            </div>
-
-            {/* AI Chat panel */}
-            {showChat && (
-              <>
-                <Resizer direction="x" />
-                <div style={{ width: chatPanelWidth, minWidth: 280, maxWidth: 600, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-                  <ChatPanel />
-                </div>
-              </>
-            )}
+          {/* Code editor */}
+          <div className="flex-1 overflow-hidden flex flex-col">
+            {tabs.length === 0 ? <WelcomeScreen /> : <EditorArea />}
           </div>
 
-          {/* Terminal panel */}
+          {/* Terminal panel (docked ONLY under editor, completely isolated from AI Chat panel) */}
           {showTerminal && (
             <>
               <Resizer direction="y" />
@@ -159,6 +147,16 @@ export default function App() {
             </>
           )}
         </div>
+
+        {/* AI Chat panel (Full Height column on the right side, immune to terminal open/close) */}
+        {showChat && (
+          <>
+            <Resizer direction="x" />
+            <div style={{ width: chatPanelWidth, minWidth: 280, maxWidth: 800, height: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+              <ChatPanel />
+            </div>
+          </>
+        )}
       </div>
 
       {/* Status bar */}
