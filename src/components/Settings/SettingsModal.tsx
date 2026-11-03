@@ -4,7 +4,7 @@ import { nanoid } from '../../utils/nanoid'
 import { detectProviderType, providerColor, formatLatency } from '../../utils/helpers'
 import type { ProviderConfig, ModelConfig } from '../../types'
 import {
-  X, Plus, Trash2, RefreshCw, CheckCircle, XCircle,
+  Plus, Trash2, RefreshCw, CheckCircle, XCircle,
   Loader, ChevronDown, ChevronRight, Eye, EyeOff, Settings,
   Cpu, Zap, Globe, Terminal as TerminalIcon,
 } from 'lucide-react'
@@ -87,24 +87,80 @@ export function SettingsModal() {
               {tab}
             </button>
           ))}
-          <button
-            onClick={toggleSettings}
-            style={{
-              marginTop: 'auto', marginLeft: 'auto', marginRight: 16,
-              background: 'none', border: 'none', color: 'var(--text-muted)',
-              cursor: 'pointer', display: 'flex', alignItems: 'center',
-            }}
-          >
-            <X size={16} />
-          </button>
+          {/* Close button at bottom of sidebar tabs */}
+          <div style={{ marginTop: 'auto', padding: '12px 14px 4px' }}>
+            <button
+              onClick={toggleSettings}
+              style={{
+                width: '100%',
+                padding: '7px 12px',
+                fontSize: 12,
+                fontWeight: 600,
+                color: 'var(--text-secondary)',
+                background: 'var(--bg-input)',
+                border: '1px solid var(--border)',
+                borderRadius: 'var(--radius)',
+                cursor: 'pointer',
+                textAlign: 'center',
+                transition: 'all 0.15s ease',
+              }}
+              onMouseEnter={e => {
+                e.currentTarget.style.background = 'var(--bg-hover)'
+                e.currentTarget.style.color = 'var(--text-primary)'
+                e.currentTarget.style.borderColor = 'var(--border-focus)'
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.background = 'var(--bg-input)'
+                e.currentTarget.style.color = 'var(--text-secondary)'
+                e.currentTarget.style.borderColor = 'var(--border)'
+              }}
+            >
+              Close
+            </button>
+          </div>
         </div>
 
-        {/* Content */}
-        <div style={{ flex: 1, overflow: 'auto', padding: '24px' }}>
-          {activeTab === 'Providers' && <ProvidersTab />}
-          {activeTab === 'Editor' && <EditorTab />}
-          {activeTab === 'AI' && <AITab />}
-          {activeTab === 'About' && <AboutTab />}
+        {/* Content area with bottom Close button */}
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+          <div style={{ flex: 1, overflow: 'auto', padding: '24px' }}>
+            {activeTab === 'Providers' && <ProvidersTab />}
+            {activeTab === 'Editor' && <EditorTab />}
+            {activeTab === 'AI' && <AITab />}
+            {activeTab === 'About' && <AboutTab />}
+          </div>
+
+          {/* Bottom footer bar */}
+          <div style={{
+            padding: '10px 24px',
+            borderTop: '1px solid var(--border)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            background: 'var(--bg-sidebar)',
+            flexShrink: 0,
+          }}>
+            <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>
+              Press <kbd style={{ padding: '1px 5px', background: 'var(--bg-input)', border: '1px solid var(--border)', borderRadius: 3, fontSize: 10 }}>Esc</kbd> to exit
+            </span>
+            <button
+              onClick={toggleSettings}
+              style={{
+                padding: '6px 20px',
+                fontSize: 12,
+                fontWeight: 600,
+                color: '#ffffff',
+                background: 'var(--accent)',
+                border: 'none',
+                borderRadius: 'var(--radius)',
+                cursor: 'pointer',
+                transition: 'opacity 0.15s ease',
+              }}
+              onMouseEnter={e => (e.currentTarget.style.opacity = '0.85')}
+              onMouseLeave={e => (e.currentTarget.style.opacity = '1')}
+            >
+              Close
+            </button>
+          </div>
         </div>
       </div>
     </div>
