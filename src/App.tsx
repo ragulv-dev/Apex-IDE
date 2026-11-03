@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { useSettingsStore, useUIStore } from './stores'
+import { useSettingsStore, useUIStore, useWorkspaceStore } from './stores'
 import { TitleBar } from './components/TitleBar'
 import { Sidebar } from './components/Sidebar/Sidebar'
 import { ActivityBar } from './components/ActivityBar'
@@ -76,10 +76,26 @@ export default function App() {
           return
         }
 
-        // Toggle Chat: Ctrl + L
-        if (e.key === 'l' || e.key === 'L') {
+        // Toggle Chat: Ctrl + L or Ctrl + Alt + I
+        if ((e.key === 'l' || e.key === 'L') || (e.altKey && (e.key === 'i' || e.key === 'I'))) {
           e.preventDefault()
           toggleChat()
+          return
+        }
+
+        // Open Folder: Ctrl + O
+        if (e.key === 'o' || e.key === 'O') {
+          e.preventDefault()
+          window.electron?.dialog?.openFolder?.().then((path: string | null) => {
+            if (path) useWorkspaceStore.getState().setWorkspacePath(path)
+          })
+          return
+        }
+
+        // Show All Commands: Ctrl + Shift + P
+        if (e.shiftKey && (e.key === 'p' || e.key === 'P')) {
+          e.preventDefault()
+          useUIStore.getState().setCommandPaletteOpen(true)
           return
         }
 

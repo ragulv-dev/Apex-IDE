@@ -1,21 +1,15 @@
-import React from 'react'
-import { useWorkspaceStore, useUIStore, useSettingsStore, useChatStore } from '../stores'
-import { FolderOpen, FileCode, Bot, Settings, Terminal, Sparkles, Plus, Command } from 'lucide-react'
+import React, { useState } from 'react'
+import { useWorkspaceStore, useUIStore } from '../stores'
 
 export const WelcomeScreen: React.FC = () => {
   const { setWorkspacePath } = useWorkspaceStore()
-  const { toggleSettings, toggleChat, toggleTerminal, setCommandPaletteOpen } = useUIStore()
-  const { createConversation } = useChatStore()
-  const { defaultProviderId, defaultModelId } = useSettingsStore()
+  const { toggleSettings, toggleChat, setCommandPaletteOpen } = useUIStore()
 
   const handleOpenFolder = async () => {
-    const path = await window.electron.dialog.openFolder()
-    if (path) setWorkspacePath(path)
-  }
-
-  const handleNewChat = () => {
-    createConversation(defaultProviderId, defaultModelId)
-    toggleChat()
+    try {
+      const path = await window.electron?.dialog?.openFolder?.()
+      if (path) setWorkspacePath(path)
+    } catch {}
   }
 
   return (
@@ -26,132 +20,177 @@ export const WelcomeScreen: React.FC = () => {
         alignItems: 'center',
         justifyContent: 'center',
         height: '100%',
+        width: '100%',
         padding: '32px',
         color: 'var(--text-primary)',
-        background: 'radial-gradient(circle at 50% 30%, rgba(56, 139, 253, 0.05), transparent 70%), var(--bg-base)',
-        overflowY: 'auto',
+        background: '#000000',
+        position: 'relative',
+        overflow: 'hidden',
+        userSelect: 'none',
       }}
     >
-      <div style={{ maxWidth: 640, width: '100%', textAlign: 'center' }}>
-        {/* Official APEX Brand Emblem */}
-        <div className="flex justify-center mb-5">
+      {/* Background Watermark Logo */}
+      <div
+        style={{
+          position: 'absolute',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          width: 340,
+          height: 340,
+          pointerEvents: 'none',
+          opacity: 0.08,
+          filter: 'drop-shadow(0 0 80px rgba(0, 102, 255, 0.45))',
+          zIndex: 0,
+        }}
+      >
+        <img
+          src="./brand/apex-icon.png"
+          alt=""
+          style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+        />
+      </div>
+
+      {/* Foreground Content */}
+      <div
+        style={{
+          position: 'relative',
+          zIndex: 1,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+        }}
+      >
+        {/* Center Logo Emblem */}
+        <div style={{ marginBottom: 32 }}>
           <img
             src="./brand/apex-icon.png"
             alt="APEX"
             style={{
-              width: 100,
-              height: 100,
+              width: 80,
+              height: 80,
               objectFit: 'contain',
-              filter: 'drop-shadow(0 12px 36px rgba(0, 102, 255, 0.35))',
+              filter: 'drop-shadow(0 8px 32px rgba(0, 102, 255, 0.35))',
             }}
           />
         </div>
 
-        <h1 style={{ fontSize: 26, fontWeight: 800, marginBottom: 6, letterSpacing: '0.08em', color: 'var(--text-primary)' }}>
-          APEX
-        </h1>
-        <p style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 28 }}>
-          Professional Developer IDE & Autonomous Agent Workspace
-        </p>
-
-        {/* Quick action grid */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12, marginBottom: 32 }}>
-          <ActionButton
-            icon={<FolderOpen size={18} />}
-            title="Open Folder"
-            desc="Open a local directory or project"
-            onClick={handleOpenFolder}
+        {/* Minimal Shortcut Key Guide (matching VS Code / Cursor watermark) */}
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 10,
+            width: 320,
+          }}
+        >
+          <ShortcutRow
+            label="Open Chat"
+            keys={['Ctrl', 'Alt', 'I']}
+            onClick={toggleChat}
           />
-          <ActionButton
-            icon={<Bot size={18} />}
-            title="Start AI Chat"
-            desc="Prompt, brainstorm or refactor code"
-            onClick={handleNewChat}
-          />
-          <ActionButton
-            icon={<Settings size={18} />}
-            title="Configure AI Providers"
-            desc="Add BYOK keys: Claude, GPT, Gemini, Ollama..."
-            onClick={toggleSettings}
-          />
-          <ActionButton
-            icon={<Command size={18} />}
-            title="Command Palette"
-            desc="Quick access to all actions (Ctrl+Shift+P)"
+          <ShortcutRow
+            label="Show All Commands"
+            keys={['Ctrl', 'Shift', 'P']}
             onClick={() => setCommandPaletteOpen(true)}
           />
-        </div>
-
-        {/* Supported AI Providers Pills */}
-        <div style={{ borderTop: '1px solid var(--border)', paddingTop: 20 }}>
-          <div style={{ fontSize: 11, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 12 }}>
-            Universal Provider Support (BYOK)
-          </div>
-          <div className="flex flex-wrap items-center justify-center gap-2">
-            {[
-              'OpenAI GPT-4o', 'Claude 3.7 Sonnet', 'Gemini 2.5 Flash / Pro', 
-              'DeepSeek V3 / R1', 'Groq LPU', 'Ollama (Local)', 
-              'LM Studio (Local)', 'Mistral', 'Qwen 2.5', 'Together AI'
-            ].map(name => (
-              <span
-                key={name}
-                style={{
-                  fontSize: 11,
-                  padding: '3px 8px',
-                  borderRadius: '12px',
-                  background: 'var(--bg-panel)',
-                  border: '1px solid var(--border)',
-                  color: 'var(--text-secondary)',
-                }}
-              >
-                {name}
-              </span>
-            ))}
-          </div>
+          <ShortcutRow
+            label="Open Settings"
+            keys={['Ctrl', ',']}
+            onClick={toggleSettings}
+          />
+          <ShortcutRow
+            label="Open Folder"
+            keys={['Ctrl', 'O']}
+            onClick={handleOpenFolder}
+          />
         </div>
       </div>
     </div>
   )
 }
 
-function ActionButton({ icon, title, desc, onClick }: {
-  icon: React.ReactNode; title: string; desc: string; onClick: () => void
+function ShortcutRow({
+  label,
+  keys,
+  onClick,
+}: {
+  label: string
+  keys: string[]
+  onClick?: () => void
 }) {
+  const [hover, setHover] = useState(false)
+
   return (
-    <button
+    <div
       onClick={onClick}
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
       style={{
         display: 'flex',
         alignItems: 'center',
-        gap: 12,
-        padding: '12px 14px',
-        background: 'var(--bg-panel)',
-        border: '1px solid var(--border)',
-        borderRadius: 'var(--radius)',
-        color: 'var(--text-primary)',
-        textAlign: 'left',
-        cursor: 'pointer',
-        transition: 'all 0.15s ease',
-      }}
-      onMouseEnter={e => {
-        e.currentTarget.style.borderColor = 'var(--border-focus)'
-        e.currentTarget.style.transform = 'translateY(-1px)'
-      }}
-      onMouseLeave={e => {
-        e.currentTarget.style.borderColor = 'var(--border)'
-        e.currentTarget.style.transform = 'translateY(0)'
+        justifyContent: 'space-between',
+        padding: '6px 8px',
+        borderRadius: 6,
+        cursor: onClick ? 'pointer' : 'default',
+        background: hover && onClick ? 'rgba(255, 255, 255, 0.04)' : 'transparent',
+        transition: 'background 0.12s ease',
       }}
     >
-      <div style={{ color: 'var(--accent)', flexShrink: 0 }}>
-        {icon}
+      <span
+        style={{
+          fontSize: 13,
+          color: hover && onClick ? '#f4f4f5' : '#8b949e',
+          transition: 'color 0.12s ease',
+        }}
+      >
+        {label}
+      </span>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+        {keys.map((k, i) => (
+          <React.Fragment key={i}>
+            <KeyCap>{k}</KeyCap>
+            {i < keys.length - 1 && (
+              <span
+                style={{
+                  fontSize: 10,
+                  color: '#52525b',
+                  fontWeight: 600,
+                  lineHeight: 1,
+                }}
+              >
+                +
+              </span>
+            )}
+          </React.Fragment>
+        ))}
       </div>
-      <div style={{ overflow: 'hidden' }}>
-        <div style={{ fontSize: 13, fontWeight: 600 }}>{title}</div>
-        <div style={{ fontSize: 11, color: 'var(--text-muted)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-          {desc}
-        </div>
-      </div>
-    </button>
+    </div>
   )
 }
 
+function KeyCap({ children }: { children: React.ReactNode }) {
+  return (
+    <kbd
+      style={{
+        background: '#18181b',
+        border: '1px solid #27272a',
+        borderRadius: 4,
+        padding: '3px 7px',
+        fontSize: 11,
+        fontWeight: 500,
+        color: '#e4e4e7',
+        fontFamily: 'inherit',
+        boxShadow: '0 1px 2px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.04)',
+        display: 'inline-flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        minWidth: 20,
+        height: 20,
+        lineHeight: 1,
+      }}
+    >
+      {children}
+    </kbd>
+  )
+}
