@@ -201,15 +201,6 @@ export function ChatPanel() {
         </div>
       </div>
 
-      {/* Model selector */}
-      <div style={{ padding: '8px', borderBottom: '1px solid var(--border)', flexShrink: 0 }}>
-        <ModelSelector
-          providerId={providerId}
-          modelId={modelId}
-          conversationId={activeConversationId}
-        />
-      </div>
-
       {/* Messages */}
       <div style={{ flex: 1, overflow: 'auto', padding: '12px 0' }}>
         {!activeConversation || activeConversation.messages.length === 0 ? (
@@ -260,8 +251,16 @@ export function ChatPanel() {
               outline: 'none',
             }}
           />
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '6px 8px', borderTop: '1px solid var(--border)' }}>
-            <div className="flex items-center gap-1">
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '6px 8px', borderTop: '1px solid var(--border)', gap: 8 }}>
+            <div className="flex items-center gap-1.5 flex-1 min-w-0">
+              {/* Model selector at bottom like Antigravity IDE */}
+              <ModelSelector
+                providerId={providerId}
+                modelId={modelId}
+                conversationId={activeConversationId}
+                direction="up"
+                compact
+              />
               <IconBtn title="Attach file" onClick={() => {}}>
                 <Paperclip size={14} />
               </IconBtn>
