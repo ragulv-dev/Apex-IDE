@@ -29,18 +29,18 @@ export const WelcomeScreen: React.FC = () => {
         userSelect: 'none',
       }}
     >
-      {/* Background Watermark Logo */}
+      {/* Background Watermark Logo (Clearly visible transparent emblem glow) */}
       <div
         style={{
           position: 'absolute',
           top: '50%',
           left: '50%',
           transform: 'translate(-50%, -50%)',
-          width: 340,
-          height: 340,
+          width: 440,
+          height: 440,
           pointerEvents: 'none',
-          opacity: 0.08,
-          filter: 'drop-shadow(0 0 80px rgba(0, 102, 255, 0.45))',
+          opacity: 0.22,
+          filter: 'drop-shadow(0 0 120px rgba(0, 102, 255, 0.55))',
           zIndex: 0,
         }}
       >
@@ -62,15 +62,15 @@ export const WelcomeScreen: React.FC = () => {
         }}
       >
         {/* Center Logo Emblem */}
-        <div style={{ marginBottom: 32 }}>
+        <div style={{ marginBottom: 28 }}>
           <img
             src="./brand/apex-icon.png"
             alt="APEX"
             style={{
-              width: 80,
-              height: 80,
+              width: 88,
+              height: 88,
               objectFit: 'contain',
-              filter: 'drop-shadow(0 8px 32px rgba(0, 102, 255, 0.35))',
+              filter: 'drop-shadow(0 8px 36px rgba(0, 102, 255, 0.45))',
             }}
           />
         </div>
@@ -81,12 +81,12 @@ export const WelcomeScreen: React.FC = () => {
             display: 'flex',
             flexDirection: 'column',
             gap: 10,
-            width: 320,
+            width: 340,
           }}
         >
           <ShortcutRow
             label="Open Chat"
-            keys={['Ctrl', 'Alt', 'I']}
+            keys={['Ctrl', 'L']}
             onClick={toggleChat}
           />
           <ShortcutRow
@@ -103,6 +103,11 @@ export const WelcomeScreen: React.FC = () => {
             label="Open Folder"
             keys={['Ctrl', 'O']}
             onClick={handleOpenFolder}
+          />
+          <ShortcutRow
+            label="Toggle Terminal"
+            keys={['Ctrl', '`']}
+            onClick={() => useUIStore.getState().toggleTerminal()}
           />
         </div>
       </div>

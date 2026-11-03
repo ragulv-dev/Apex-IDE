@@ -6,11 +6,17 @@ import {
   dialog,
   safeStorage,
   nativeTheme,
+  nativeImage,
   Menu,
   MenuItem,
 } from 'electron'
 import { join, resolve } from 'path'
 import { existsSync, mkdirSync, readFileSync, writeFileSync, appendFileSync } from 'fs'
+
+// Set Windows AppUserModelId immediately so taskbar grouping and icon match APEX
+if (process.platform === 'win32') {
+  app.setAppUserModelId('com.apex.app')
+}
 
 function logDebug(msg: string) {
   try {
@@ -40,7 +46,7 @@ import { registerRouterHandlers } from './ipc/router'
 
 import { APP_DATA_DIR, SETTINGS_FILE, CREDENTIALS_FILE, ensureAppDataDir } from './constants'
 
-const isDev = process.env.NODE_ENV === 'development'
+const isDev = !app.isPackaged || process.env.NODE_ENV === 'development'
 const RENDERER_URL = 'http://localhost:5173'
 
 let mainWindow: BrowserWindow | null = null
@@ -49,11 +55,13 @@ let mainWindow: BrowserWindow | null = null
 function getAppIconPath(): string | undefined {
   const candidates = [
     join(__dirname, '../public/icon.ico'),
+    join(__dirname, '../public/brand/apex-icon.ico'),
     join(__dirname, '../dist/icon.ico'),
     join(__dirname, 'icon.ico'),
     join(process.resourcesPath, 'icon.ico'),
     join(process.resourcesPath, 'public/icon.ico'),
     join(process.cwd(), 'public/icon.ico'),
+    join(process.cwd(), 'public/brand/apex-icon.ico'),
     join(process.cwd(), 'dist/icon.ico'),
     join(__dirname, '../public/icon.png'),
     join(__dirname, '../dist/icon.png'),
@@ -70,6 +78,13 @@ async function createWindow() {
   const iconPath = getAppIconPath()
   logDebug(`iconPath: ${iconPath}`)
 
+  let appIcon: any = iconPath
+  if (iconPath) {
+    try {
+      appIcon = nativeImage.createFromPath(iconPath)
+    } catch {}
+  }
+
   mainWindow = new BrowserWindow({
     width: 1400,
     height: 900,
@@ -78,7 +93,7 @@ async function createWindow() {
     frame: false,          // Custom title bar
     titleBarStyle: 'hidden',
     backgroundColor: '#000000',
-    icon: iconPath,
+    icon: appIcon,
     show: false,           // Show after ready-to-show
     webPreferences: {
       preload: join(__dirname, 'preload.js'),
@@ -91,9 +106,9 @@ async function createWindow() {
   })
 
   // Explicitly set window & taskbar icon if available
-  if (iconPath) {
+  if (appIcon) {
     try {
-      mainWindow.setIcon(iconPath)
+      mainWindow.setIcon(appIcon)
     } catch (e) {
       logDebug(`setIcon error: ${e}`)
     }
@@ -101,17 +116,41 @@ async function createWindow() {
 
   // Load renderer
   const distHtml = join(__dirname, '../dist/index.html')
-  logDebug(`distHtml: ${distHtml}, exists: ${existsSync(distHtml)}`)
-  if (isDev && !existsSync(distHtml)) {
-    logDebug(`Loading RENDERER_URL: ${RENDERER_URL}`)
-    await mainWindow.loadURL(RENDERER_URL)
-    mainWindow.webContents.openDevTools({ mode: 'detach' })
-  } else if (existsSync(distHtml)) {
-    logDebug(`Loading distHtml: ${distHtml}`)
-    await mainWindow.loadFile(distHtml)
+  logDebug(`distHtml: ${distHtml}, exists: ${existsSync(distHtml)}, isDev: ${isDev}`)
+  
+  if (isDev) {
+    let devServerAvailable = false
+    try {
+      const http = require('http')
+      devServerAvailable = await new Promise<boolean>((resolve) => {
+        const req = http.get(RENDERER_URL, (res: any) => {
+          resolve(res.statusCode === 200 || res.statusCode === 304)
+        })
+        req.on('error', () => resolve(false))
+        req.setTimeout(1000, () => {
+          req.destroy()
+          resolve(false)
+        })
+      })
+    } catch {}
+
+    if (devServerAvailable) {
+      logDebug(`Loading RENDERER_URL: ${RENDERER_URL}`)
+      await mainWindow.loadURL(RENDERER_URL)
+    } else if (existsSync(distHtml)) {
+      logDebug(`Loading distHtml (fallback in dev): ${distHtml}`)
+      await mainWindow.loadFile(distHtml)
+    } else {
+      logDebug(`Fallback loading RENDERER_URL: ${RENDERER_URL}`)
+      await mainWindow.loadURL(RENDERER_URL)
+    }
   } else {
-    logDebug(`Fallback loading RENDERER_URL: ${RENDERER_URL}`)
-    await mainWindow.loadURL(RENDERER_URL)
+    if (existsSync(distHtml)) {
+      logDebug(`Loading distHtml in production: ${distHtml}`)
+      await mainWindow.loadFile(distHtml)
+    } else {
+      await mainWindow.loadURL(RENDERER_URL)
+    }
   }
 
   // Show window once loaded (prevents flash)
